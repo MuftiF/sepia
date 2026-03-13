@@ -34,6 +34,16 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    public function reports()
+    {
+        return $this->hasMany(Laporan::class);
+    }
+
+    public function forecasts()
+    {
+        return $this->hasMany(Forecast::class);
+    }
+
     /**
      * Get the attributes that should be cast.
      *
