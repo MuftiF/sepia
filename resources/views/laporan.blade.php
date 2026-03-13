@@ -4,14 +4,12 @@
 
 @section('content')
 
-{{-- PAGE HERO --}}
 <section class="page-hero">
   <p class="page-label">01 — Ekstraksi & Strukturisasi</p>
   <h1>Laporan <em>Terstruktur</em></h1>
   <p>Input URL berita atau tempel teks dokumen — Llama AI akan mengekstrak kronologi, aktor, pasal, dan fakta penting secara otomatis.</p>
 </section>
 
-{{-- PAGE BODY --}}
 <div class="page-body">
   <div class="two-col">
 
@@ -20,73 +18,114 @@
       <div class="panel">
         <div class="panel-title">Input Sumber</div>
 
-        <div class="input-group">
-          <label class="input-label" for="laporan-input">URL Berita atau Teks Dokumen</label>
-          <textarea
-            class="input-field"
-            id="laporan-input"
-            rows="10"
-            placeholder="Tempel URL berita, atau langsung salin isi teks berita / dokumen di sini..."></textarea>
-        </div>
+        {{-- FORM LARAVEL --}}
+<form action="{{ route('laporan.store') }}" method="POST">
+@csrf
 
-        <button class="btn btn-primary" id="laporan-btn" onclick="prosesLaporan()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-          Proses dengan Llama AI
-        </button>
+<div class="input-group">
+<label class="input-label">Judul Berita</label>
+<input
+type="text"
+name="title"
+class="input-field"
+placeholder="Masukkan judul berita..."
+required>
+</div>
+
+<div class="input-group">
+<label class="input-label">URL Berita</label>
+<input
+type="text"
+name="source_url"
+class="input-field"
+placeholder="https://..."
+required>
+</div>
+
+<div class="input-group">
+<label class="input-label">Isi Berita / Dokumen</label>
+<textarea
+id="laporan-input"
+class="input-field"
+name="content"
+rows="10"
+placeholder="Tempel teks berita di sini..."
+required></textarea>
+</div>
+
+<br>
+
+<button type="button" class="btn btn-primary" onclick="prosesLaporan()">
+Proses dengan Llama AI
+</button>
+
+<br><br>
+
+<button type="submit" class="btn btn-secondary">
+Simpan Laporan
+</button>
+
+</form>
 
         <div class="alert-danger" id="laporan-error"></div>
       </div>
 
       {{-- INFO BOX --}}
       <div style="margin-top:1.2rem;padding:1.2rem;border:1px dashed rgba(139,105,20,0.25)">
-        <p style="font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:0.5rem">Yang akan diekstrak</p>
+        <p style="font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:0.5rem">
+        Yang akan diekstrak
+        </p>
+
         <ul style="list-style:none;font-size:0.83rem;color:var(--slate);line-height:2">
           <li>→ Judul & ringkasan kasus</li>
           <li>→ Kronologi kejadian</li>
           <li>→ Aktor: tersangka, korban, saksi</li>
           <li>→ Lokasi, tanggal, kategori kasus</li>
           <li>→ Pasal yang disangkakan</li>
-          <li>→ Kerugian finansial (jika ada)</li>
+          <li>→ Kerugian finansial</li>
           <li>→ Status terkini kasus</li>
         </ul>
       </div>
     </div>
 
-    {{-- KANAN: HASIL --}}
+    {{-- KANAN: HASIL LAPORAN --}}
     <div>
-      {{-- SPINNER --}}
-      <div class="spinner-wrap" id="laporan-spinner">
-        <div class="spinner"></div>
-        <p class="spinner-text">Llama sedang memproses konten...</p>
-      </div>
 
-      {{-- HASIL --}}
-      <div class="result-panel" id="laporan-result">
-        <div class="result-panel-header">
-          <span>Hasil Strukturisasi</span>
-          <div class="result-status">
-            <div class="status-dot"></div>
-            <span>Llama 3.3 — Groq</span>
-          </div>
-        </div>
-        <div class="result-panel-body" id="laporan-result-body">
-          {{-- Diisi oleh JavaScript --}}
-        </div>
-      </div>
+      <div class="panel">
+        <div class="panel-title">Riwayat Laporan</div>
 
-      {{-- PLACEHOLDER KOSONG --}}
-      <div id="laporan-placeholder" style="padding:4rem 2rem;text-align:center;border:1px dashed rgba(139,105,20,0.2)">
-        <p style="font-family:'DM Mono',monospace;font-size:0.68rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted)">
-          Hasil akan muncul di sini
+        @forelse($reports as $report)
+
+        <div style="border:1px solid #eee;padding:1rem;margin-bottom:1rem">
+
+          <strong>{{ $report->title }}</strong>
+
+          <p style="font-size:0.8rem;color:#666">
+            {{ $report->source_url }}
+          </p>
+
+          <p>
+            {{ Str::limit($report->content,150) }}
+          </p>
+
+        </div>
+
+        @empty
+
+        <p style="color:var(--muted)">
+        Belum ada laporan yang disimpan.
         </p>
+
+        @endforelse
+
       </div>
+
     </div>
 
   </div>
 </div>
 
 @endsection
-
 @push('scripts')
 <script>
 // ============================================================
